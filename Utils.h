@@ -1,7 +1,5 @@
 #pragma once
 
-#include "pch.h"
-
 namespace iw4oa 
 {
 	static class Utils {

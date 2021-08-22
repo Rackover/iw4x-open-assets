@@ -1,11 +1,10 @@
 #include "pch.h"
-#include "SoundAliasList.h"
 
-void iw4oa::AssetInterfaces::SoundAliasList::serialize(void* asset, std::ostream& outputStream)
+void iw4oa::AssetHandlers::SoundAliasList::serialize(void* asset, std::ostream& outputStream)
 {
 	auto ents = reinterpret_cast<Game::snd_alias_list_t*>(asset);
 
-	nlohmann::json::array_t head{};
+	nlohmann::json::array_t head{}; 
 
 	for (size_t i = 0; i < ents->count; i++) {
 
@@ -116,7 +115,7 @@ void iw4oa::AssetInterfaces::SoundAliasList::serialize(void* asset, std::ostream
 	outputStream.write(buffer.data(), buffer.length());
 }
 
-void* iw4oa::AssetInterfaces::SoundAliasList::deserialize(std::istream& inputStream, const std::string assetName, MemoryManager& memoryManager, const std::function<Game::XAssetHeader* (uint8_t type, const char* name)>& findAssetFunction = nullptr)
+void* iw4oa::AssetHandlers::SoundAliasList::deserialize(std::istream& inputStream, const std::string assetName, MemoryManager& memoryManager, const std::function<Game::XAssetHeader* (uint8_t type, const char* name)>& findAssetFunction)
 {
 	Game::snd_alias_list_t* aliasList = memoryManager.Create<Game::snd_alias_list_t>();
 
@@ -127,8 +126,7 @@ void* iw4oa::AssetInterfaces::SoundAliasList::deserialize(std::istream& inputStr
 
 	std::string buffer(std::istreambuf_iterator<char>(inputStream), {});
 
-	std::string errors;
-	nlohmann::json::object_t jsonAliasesObj = nlohmann::json::parse(buffer, errors);
+	nlohmann::json::object_t jsonAliasesObj = nlohmann::json::parse(buffer);
 	nlohmann::json::array_t jsonAliases = jsonAliasesObj["head"];
 
 
@@ -329,18 +327,23 @@ if (!CHECK(x, string))\
 					fallOffCurve = "$default";
 				}
 
-				auto curve = findAssetFunction(
-					Game::XAssetType::ASSET_TYPE_SOUND_CURVE,
-					fallOffCurve.c_str()
-				)->sndCurve;
+				if (findAssetFunction) {
+					auto curve = findAssetFunction(
+						Game::XAssetType::ASSET_TYPE_SOUND_CURVE,
+						fallOffCurve.c_str()
+					)->sndCurve;
 
-				alias->volumeFalloffCurve = curve;
+					alias->volumeFalloffCurve = curve;
+				}
 			}
 
 			if (static_cast<Game::snd_alias_type_t>(type.get<nlohmann::json::number_float_t>()) == Game::snd_alias_type_t::SAT_LOADED) // Loaded
 			{
 				alias->soundFile->type = Game::SAT_LOADED;
-				alias->soundFile->u.loadSnd = findAssetFunction(Game::XAssetType::ASSET_TYPE_LOADED_SOUND, soundFile.get<nlohmann::json::string_t>().c_str())->loadSnd;
+
+				if (findAssetFunction) {
+					alias->soundFile->u.loadSnd = findAssetFunction(Game::XAssetType::ASSET_TYPE_LOADED_SOUND, soundFile.get<nlohmann::json::string_t>().c_str())->loadSnd;
+				}
 			}
 			else if (static_cast<Game::snd_alias_type_t>(type.get<nlohmann::json::number_float_t>()) == Game::snd_alias_type_t::SAT_STREAMED) // Streamed 
 			{
@@ -362,7 +365,6 @@ if (!CHECK(x, string))\
 			else
 			{
 				throw DeserializationException("Failed to parse sound %s! Invalid sound type %s\n", assetName.c_str(), type.get<nlohmann::json::string_t>().c_str());
-				return;
 			}
 
 			aliasList->head[i] = *alias;

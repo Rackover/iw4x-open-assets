@@ -19,8 +19,9 @@
 
 #include "Utils.h"
 #include "MemoryManager.h"
+#include "IAssetHandler.h"
 
-#include "IAsset.h"
+#include "API.h"
 #include "SoundAliasList.h"
 
 #endif //PCH_H

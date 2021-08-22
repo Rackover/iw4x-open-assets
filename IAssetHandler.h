@@ -1,12 +1,10 @@
 #pragma once
 
-#include "pch.h";
-
 #define JSON_INDENT 4
 
 namespace iw4oa 
 {
-	class IAsset {
+	class IAssetHandler {
 
 	public:
 		class DeserializationException : public std::exception{
@@ -16,7 +14,7 @@ namespace iw4oa
 				}
 
 				DeserializationException(const char* fmt, const char* args, ...) {
-					this->reason = Utils::String::VA(fmt, args);
+					this->reason = iw4oa::Utils::String::VA(fmt, args);
 				}
 
 				std::string toString() const throw()
