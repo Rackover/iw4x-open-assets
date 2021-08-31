@@ -4,7 +4,9 @@ namespace iw4oa
 {
 	namespace AssetHandlers {
 
-		class SoundAliasList : public IAssetHandler {
+#define SEMANTIC_WATER_MAP 11
+
+		class Material : public IAssetHandler {
 
 		public:
 			virtual void serialize(void* asset, const std::string& baseOutputPath) override;
@@ -16,6 +18,7 @@ namespace iw4oa
 			) override;
 
 			virtual const char* get_serialized_file_path(const char* assetName) override;
+			virtual const char* get_serialized_base_path() override;
 		};
 
 	}

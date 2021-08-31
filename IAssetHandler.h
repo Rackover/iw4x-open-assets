@@ -62,6 +62,12 @@ namespace iw4oa
 		/// <param name="assetName">Name of the asset (asset->name, for most assets)</param>
 		/// <returns></returns>
 		virtual const char* get_serialized_file_path(const char* assetName) = 0;
+
+		/// <summary>
+		/// Returns the base folder name in which this asset should be dumped (example, for a Material => materials)
+		/// </summary>
+		/// <returns></returns>
+		virtual const char* get_serialized_base_path() = 0;
 	};
 
 }

@@ -31,7 +31,7 @@ void iw4oa::AssetHandlers::SoundAliasList::serialize(void* asset, const std::str
 				}
 
 				channelMaps.emplace_back(nlohmann::json::object_t{
-					{"entryCount", static_cast<int>(channelMap.speakerCount)},
+					{"entryCount", channelMap.speakerCount},
 					{"speakers", speakers}
 					});
 			}
@@ -105,14 +105,14 @@ void iw4oa::AssetHandlers::SoundAliasList::serialize(void* asset, const std::str
 
 	nlohmann::json aliasList = nlohmann::json::object_t{
 		{"aliasName", ents->aliasName},
-		{"count", static_cast<int>(ents->count)},
+		{"count", ents->count},
 		{"head", head}
 	};
 
 	auto buffer = aliasList.dump(JSON_INDENT);
 
 	auto outPath = Utils::String::VA("%s", baseOutputPath.c_str(), get_serialized_file_path(ents->aliasName));
-	std::filesystem::create_directories(Utils::String::VA("%s/sounds", baseOutputPath.c_str()));
+	std::filesystem::create_directories(Utils::String::VA("%s/%s", baseOutputPath.c_str(), get_serialized_base_path()));
 
 	std::ofstream destination(outPath, std::ios::binary);
 	destination.write(buffer.data(), buffer.length());
@@ -266,7 +266,7 @@ if (!CHECK(x, string))\
 		}
 		if (chainAliasName.is_string())
 		{
-			alias->chainAliasName = memoryManager.Duplicate(chainAliasName.get < nlohmann::json::string_t>().c_str());
+			alias->chainAliasName = memoryManager.Duplicate(chainAliasName.get<nlohmann::json::string_t>().c_str());
 		}
 
 		alias->sequence = sequence.get<nlohmann::json::number_integer_t>();
@@ -319,10 +319,10 @@ if (!CHECK(x, string))\
 						for (size_t speakerIndex = 0; speakerIndex < alias->speakerMap->channelMaps[channelMapIndex][subChannelIndex].speakerCount; speakerIndex++)
 						{
 							auto speaker = speakers[speakerIndex];
-							alias->speakerMap->channelMaps[channelMapIndex][subChannelIndex].speakers[speakerIndex].levels[0] = static_cast<float>(speaker["levels0"].get<nlohmann::json::number_float_t>());
-							alias->speakerMap->channelMaps[channelMapIndex][subChannelIndex].speakers[speakerIndex].levels[1] = static_cast<float>(speaker["levels1"].get<nlohmann::json::number_float_t>());
-							alias->speakerMap->channelMaps[channelMapIndex][subChannelIndex].speakers[speakerIndex].numLevels = static_cast<int>(speaker["numLevels"].get<nlohmann::json::number_float_t>());
-							alias->speakerMap->channelMaps[channelMapIndex][subChannelIndex].speakers[speakerIndex].speaker = static_cast<int>(speaker["speaker"].get<nlohmann::json::number_float_t>());
+							alias->speakerMap->channelMaps[channelMapIndex][subChannelIndex].speakers[speakerIndex].levels[0] = speaker["levels0"].get<nlohmann::json::number_float_t>();
+							alias->speakerMap->channelMaps[channelMapIndex][subChannelIndex].speakers[speakerIndex].levels[1] = speaker["levels1"].get<nlohmann::json::number_float_t>();
+							alias->speakerMap->channelMaps[channelMapIndex][subChannelIndex].speakers[speakerIndex].numLevels = speaker["numLevels"].get<nlohmann::json::number_integer_t>();
+							alias->speakerMap->channelMaps[channelMapIndex][subChannelIndex].speakers[speakerIndex].speaker = speaker["speaker"].get<nlohmann::json::number_integer_t>();
 						}
 					}
 				}
@@ -348,7 +348,7 @@ if (!CHECK(x, string))\
 				}
 			}
 
-			if (static_cast<Game::snd_alias_type_t>(type.get<nlohmann::json::number_float_t>()) == Game::snd_alias_type_t::SAT_LOADED) // Loaded
+			if (static_cast<Game::snd_alias_type_t>(type.get<nlohmann::json::number_unsigned_t>()) == Game::snd_alias_type_t::SAT_LOADED) // Loaded
 			{
 				alias->soundFile->type = Game::SAT_LOADED;
 
@@ -356,7 +356,7 @@ if (!CHECK(x, string))\
 					alias->soundFile->u.loadSnd = findAssetFunction(Game::XAssetType::ASSET_TYPE_LOADED_SOUND, soundFile.get<nlohmann::json::string_t>().c_str()).loadSnd;
 				}
 			}
-			else if (static_cast<Game::snd_alias_type_t>(type.get<nlohmann::json::number_float_t>()) == Game::snd_alias_type_t::SAT_STREAMED) // Streamed 
+			else if (static_cast<Game::snd_alias_type_t>(type.get<nlohmann::json::number_unsigned_t>()) == Game::snd_alias_type_t::SAT_STREAMED) // Streamed 
 			{
 				alias->soundFile->type = Game::SAT_STREAMED;
 
@@ -390,5 +390,10 @@ if (!CHECK(x, string))\
 
 	const char* iw4oa::AssetHandlers::SoundAliasList::get_serialized_file_path(const char* assetName)
 	{
-		return Utils::String::VA("sounds/%s.json", assetName);
+		return Utils::String::VA("%s/%s.json", get_serialized_base_path(), assetName);
+	}
+
+	const char* iw4oa::AssetHandlers::SoundAliasList::get_serialized_base_path()
+	{
+		return Utils::String::VA("sounds");
 	}

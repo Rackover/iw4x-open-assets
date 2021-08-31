@@ -20,13 +20,14 @@
 #include <iostream>
 
 #include "Structs.h"
-#include "lib/nlohmann/json.hpp"
+#include "Lib/nlohmann/json.hpp"
 
 #include "Utils.h"
 #include "MemoryManager.h"
 #include "IAssetHandler.h"
 
 #include "API.h"
-#include "SoundAliasList.h"
+#include "AssetHandlers/SoundAliasList.h"
+#include "AssetHandlers/Material.h"
 
 #endif //PCH_H
