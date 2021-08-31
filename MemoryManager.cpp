@@ -4,8 +4,8 @@ namespace iw4oa
 {
     MemoryManager::AllocationInfo::AllocationInfo(IDestructible* data, void* dataPtr)
     {
-        data = data;
-        dataPtr = dataPtr;
+        this->data = data;
+        this->dataPtr = dataPtr;
     }
 
     MemoryManager::MemoryManager()
@@ -19,11 +19,11 @@ namespace iw4oa
         }
         allocations.clear();
 
-        for (auto destructible : destructible)
+        for (auto destructible : destructibles)
         {
             delete destructible.data;
         }
-        destructible.clear();
+        destructibles.clear();
     }
 
     void* MemoryManager::Alloc(const size_t size)
@@ -48,12 +48,12 @@ namespace iw4oa
 
     void MemoryManager::Delete(void* data)
     {
-        for (auto iAlloc = destructible.begin(); iAlloc != destructible.end(); ++iAlloc)
+        for (auto iAlloc = destructibles.begin(); iAlloc != destructibles.end(); ++iAlloc)
         {
             if (iAlloc->dataPtr == data)
             {
                 delete iAlloc->data;
-                destructible.erase(iAlloc);
+                destructibles.erase(iAlloc);
                 return;
             }
         }

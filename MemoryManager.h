@@ -39,14 +39,20 @@ namespace iw4oa {
             AllocationInfo(IDestructible* data, void* dataPtr);
         };
 
-        std::vector<void*> allocations;
-        std::vector<AllocationInfo> destructible;
+        std::vector<void*> allocations{};
+        std::vector<AllocationInfo> destructibles{};
 
     public:
         MemoryManager();
         virtual ~MemoryManager();
 
         void* Alloc(size_t size);
+
+        template <class T, class... _Valty>
+        T* Alloc()
+        {
+            return reinterpret_cast<T*>(Alloc(sizeof(T)));
+        }
 
         template <class T, class... _Valty>
         T* AllocArray(size_t size)
@@ -60,7 +66,7 @@ namespace iw4oa {
         T* Create(_Valty&&... _Val)
         {
             Allocation<T>* allocation = new Allocation<T>(std::forward<_Valty>(_Val)...);
-            destructible.emplace_back(allocation, &allocation->entry);
+            destructibles.emplace_back(allocation, &allocation->entry);
             return &allocation->entry;
         }
 

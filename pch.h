@@ -8,11 +8,16 @@
 #define PCH_H
 
 #include <windows.h>
-#include <ostream>
-#include <istream>
+#include <fstream>
 #include <vector>
 #include <cstdlib>
 #include <cstring>
+#include <filesystem>
+#include <string>
+#include <fstream>
+#include <streambuf>
+#include <sstream> 
+#include <iostream>
 
 #include "Structs.h"
 #include "lib/nlohmann/json.hpp"

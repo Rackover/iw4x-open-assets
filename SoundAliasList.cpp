@@ -1,6 +1,6 @@
 #include "pch.h"
 
-void iw4oa::AssetHandlers::SoundAliasList::serialize(void* asset, std::ostream& outputStream)
+void iw4oa::AssetHandlers::SoundAliasList::serialize(void* asset, const std::string& baseOutputPath)
 {
 	auto ents = reinterpret_cast<Game::snd_alias_list_t*>(asset);
 
@@ -67,24 +67,19 @@ void iw4oa::AssetHandlers::SoundAliasList::serialize(void* asset, std::ostream& 
 			}
 		}
 
-
-
 		auto jsonAlias = nlohmann::json::object_t{
-			{"aliasName", alias.aliasName},
 			{"centerPercentage",alias.centerPercentage},
-			{"chainAliasName", alias.chainAliasName == nullptr ? NULL : alias.chainAliasName},
 			{"distMax", alias.distMax},
 			{"distMin", alias.distMin},
 			{"envelopMax", alias.envelopMax},
 			{"envelopMin", alias.envelopMin},
 			{"envelopPercentage", alias.envelopPercentage},
-			{"flags", static_cast<signed int>(alias.flags)},
+			{"flags", alias.flags},
 			{"lfePercentage", alias.lfePercentage},
 			{"mixerGroup", nlohmann::json()},
 			{"pitchMax", alias.pitchMax},
 			{"pitchMin", alias.pitchMin},
 			{"probability", alias.probability},
-			{"secondaryAliasName", alias.secondaryAliasName == nullptr ? NULL : alias.secondaryAliasName},
 			{"sequence", alias.sequence},
 			{"slavePercentage", alias.___u15.slavePercentage},
 			{"speakerMap",  nlohmann::json::object_t{
@@ -92,14 +87,18 @@ void iw4oa::AssetHandlers::SoundAliasList::serialize(void* asset, std::ostream& 
 				{"isDefault", alias.speakerMap->isDefault},
 				{"name", alias.speakerMap->name}
 			}},
-			{"soundFile", _strdup(soundFile.c_str())},
+			{"soundFile", soundFile.c_str()},
 			{"startDelay", alias.startDelay},
-			{"subtitle",  alias.subtitle == nullptr ? NULL : alias.subtitle},
 			{"type", type},
 			{"volMax", alias.volMax},
 			{"volMin", alias.volMin},
 			{"volumeFalloffCurve", alias.volumeFalloffCurve->filename}
 		};
+
+		WRITE_STR_IN_JSON(alias.aliasName, jsonAlias["aliasName"]);
+		WRITE_STR_IN_JSON(alias.chainAliasName, jsonAlias["chainAliasName"]);
+		WRITE_STR_IN_JSON(alias.secondaryAliasName, jsonAlias["secondaryAliasName"]);
+		WRITE_STR_IN_JSON(alias.subtitle, jsonAlias["subtitle"]);
 
 		head.emplace_back(jsonAlias);
 	}
@@ -112,19 +111,31 @@ void iw4oa::AssetHandlers::SoundAliasList::serialize(void* asset, std::ostream& 
 
 	auto buffer = aliasList.dump(JSON_INDENT);
 
-	outputStream.write(buffer.data(), buffer.length());
+	auto outPath = Utils::String::VA("%s", baseOutputPath.c_str(), get_serialized_file_path(ents->aliasName));
+	std::filesystem::create_directories(Utils::String::VA("%s/sounds", baseOutputPath.c_str()));
+
+	std::ofstream destination(outPath, std::ios::binary);
+	destination.write(buffer.data(), buffer.length());
 }
 
-void* iw4oa::AssetHandlers::SoundAliasList::deserialize(std::istream& inputStream, const std::string assetName, MemoryManager& memoryManager, const std::function<Game::XAssetHeader* (uint8_t type, const char* name)>& findAssetFunction)
+void* iw4oa::AssetHandlers::SoundAliasList::deserialize(
+	const char* assetName,
+	const std::string& buffer,
+	MemoryManager& memoryManager, 
+	const std::function<Game::XAssetHeader (uint8_t type, const char* name)>& findAssetFunction
+)
 {
-	Game::snd_alias_list_t* aliasList = memoryManager.Create<Game::snd_alias_list_t>();
+	Game::snd_alias_list_t* aliasList = memoryManager.Alloc<Game::snd_alias_list_t>();
 
 	if (!aliasList)
 	{
 		throw DeserializationException("Error allocating memory for sound alias structure!\n");
 	}
 
-	std::string buffer(std::istreambuf_iterator<char>(inputStream), {});
+	if (buffer.empty())
+	{
+		throw MissingFileException();
+	}
 
 	nlohmann::json::object_t jsonAliasesObj = nlohmann::json::parse(buffer);
 	nlohmann::json::array_t jsonAliases = jsonAliasesObj["head"];
@@ -140,7 +151,7 @@ void* iw4oa::AssetHandlers::SoundAliasList::deserialize(std::istream& inputStrea
 		throw DeserializationException("Error allocating memory for sound alias structure!\n");
 	}
 
-	auto name = memoryManager.Duplicate(assetName.c_str());
+	auto name = memoryManager.Duplicate(assetName);
 	aliasList->aliasName = name;
 
 	for (size_t i = 0; i < aliasList->count; i++)
@@ -278,7 +289,7 @@ if (!CHECK(x, string))\
 		// Speaker map object
 		if (!speakerMap.is_null())
 		{
-			alias->speakerMap = memoryManager.Create<Game::SpeakerMap>();
+			alias->speakerMap = memoryManager.Alloc<Game::SpeakerMap>();
 			if (!alias->speakerMap)
 			{
 				throw DeserializationException("Error allocating memory for speakermap in sound alias%s!\n", alias->aliasName);
@@ -331,7 +342,7 @@ if (!CHECK(x, string))\
 					auto curve = findAssetFunction(
 						Game::XAssetType::ASSET_TYPE_SOUND_CURVE,
 						fallOffCurve.c_str()
-					)->sndCurve;
+					).sndCurve;
 
 					alias->volumeFalloffCurve = curve;
 				}
@@ -342,7 +353,7 @@ if (!CHECK(x, string))\
 				alias->soundFile->type = Game::SAT_LOADED;
 
 				if (findAssetFunction) {
-					alias->soundFile->u.loadSnd = findAssetFunction(Game::XAssetType::ASSET_TYPE_LOADED_SOUND, soundFile.get<nlohmann::json::string_t>().c_str())->loadSnd;
+					alias->soundFile->u.loadSnd = findAssetFunction(Game::XAssetType::ASSET_TYPE_LOADED_SOUND, soundFile.get<nlohmann::json::string_t>().c_str()).loadSnd;
 				}
 			}
 			else if (static_cast<Game::snd_alias_type_t>(type.get<nlohmann::json::number_float_t>()) == Game::snd_alias_type_t::SAT_STREAMED) // Streamed 
@@ -364,7 +375,7 @@ if (!CHECK(x, string))\
 			}
 			else
 			{
-				throw DeserializationException("Failed to parse sound %s! Invalid sound type %s\n", assetName.c_str(), type.get<nlohmann::json::string_t>().c_str());
+				throw DeserializationException("Failed to parse sound %s! Invalid sound type %s\n", assetName, type.get<nlohmann::json::string_t>().c_str());
 			}
 
 			aliasList->head[i] = *alias;
@@ -375,4 +386,9 @@ if (!CHECK(x, string))\
 #undef CHECK_STR
 
 		return aliasList;
+	}
+
+	const char* iw4oa::AssetHandlers::SoundAliasList::get_serialized_file_path(const char* assetName)
+	{
+		return Utils::String::VA("sounds/%s.json", assetName);
 	}
