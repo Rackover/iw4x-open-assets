@@ -4,8 +4,6 @@ void iw4oa::AssetHandlers::Material::serialize(void* asset, const std::string& b
 {
 	Game::Material* material = reinterpret_cast<Game::Material*>(asset);
 
-	std::string buffer;
-
 	auto constantTable = nlohmann::json::array_t(material->constantCount);
 	for (char i = 0; i < material->constantCount; i++)
 	{
@@ -15,11 +13,11 @@ void iw4oa::AssetHandlers::Material::serialize(void* asset, const std::string& b
 			literals[literalIndex] = material->constantTable[i].literal[literalIndex];
 		}
 
-		constantTable.push_back(nlohmann::json::object_t{
+		constantTable[i] = nlohmann::json::object_t{
 			{"literals", literals},
 			{"name", material->constantTable[i].name},
 			{"nameHash", static_cast<int>(material->constantTable[i].nameHash)}
-			});
+		};
 	}
 
 	auto textureTable = nlohmann::json::array_t(material->textureCount);
@@ -95,7 +93,7 @@ void iw4oa::AssetHandlers::Material::serialize(void* asset, const std::string& b
 			jsonTexture["waterinfo"] = jsonWater;
 		}
 
-		textureTable.push_back(jsonTexture);
+		textureTable[i] = jsonTexture;
 	}
 
 
@@ -129,10 +127,15 @@ void iw4oa::AssetHandlers::Material::serialize(void* asset, const std::string& b
 	auto buffer = matData.dump(JSON_INDENT);
 
 
-	auto outPath = Utils::String::VA("%s", baseOutputPath.c_str(), get_serialized_file_path(material->info.name));
-	std::filesystem::create_directories(Utils::String::VA("%s/%s", baseOutputPath.c_str(), get_serialized_base_path()));
-	std::ofstream destination(outPath, std::ios::binary);
-	destination.write(buffer.data(), buffer.length());
+	std::string outPath = Utils::String::VA("%s/%s", baseOutputPath.c_str(), get_serialized_file_path(material->info.name));
+	auto dir = outPath.substr(0, outPath.find_last_of("/\\"));
+	std::filesystem::create_directories(dir);
+	std::ofstream destination(outPath, std::ios::out | std::ios::binary);
+
+	if (destination.is_open()) 
+	{
+		destination << buffer.data();
+	}
 }
 
 void* iw4oa::AssetHandlers::Material::deserialize(
@@ -162,7 +165,6 @@ void* iw4oa::AssetHandlers::Material::deserialize(
 	if (!jsonMat.is_object())
 	{
 		throw new DeserializationException("Failed to load material information for %s!", assetName);
-		return;
 	}
 
 	material->info.textureAtlasColumnCount = jsonMat["animationX"].get<nlohmann::json::number_unsigned_t>();
