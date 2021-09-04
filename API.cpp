@@ -3,7 +3,8 @@
 namespace iw4oa {
 
 	std::map<uint8_t, IAssetHandler*> API::instantiatedHandlers {
-		{static_cast<uint8_t>(Game::XAssetType::ASSET_TYPE_SOUND), new AssetHandlers::SoundAliasList()}
+		{static_cast<uint8_t>(Game::XAssetType::ASSET_TYPE_SOUND), new AssetHandlers::SoundAliasList()},
+		{static_cast<uint8_t>(Game::XAssetType::ASSET_TYPE_MATERIAL), new AssetHandlers::Material()}
 	};
 
 	IAssetHandler* API::get_handler_for_type(uint8_t uiType){
