@@ -52,7 +52,7 @@ namespace iw4oa
 		virtual void* deserialize(
 			const char* assetName,
 			const std::string& buffer, 
-			MemoryManager &memoryManager,
+			Utils::MemoryManager &memoryManager,
 			const std::function<Game::XAssetHeader(uint8_t type, const char* name)> &findAssetFunction = nullptr
 		) = 0;
 
@@ -61,13 +61,13 @@ namespace iw4oa
 		/// </summary>
 		/// <param name="assetName">Name of the asset (asset->name, for most assets)</param>
 		/// <returns></returns>
-		virtual const char* get_serialized_file_path(const char* assetName) = 0;
+		virtual const char* getSerializedFilePath(const char* assetName) = 0;
 
 		/// <summary>
 		/// Returns the base folder name in which this asset should be dumped (example, for a Material => materials)
 		/// </summary>
 		/// <returns></returns>
-		virtual const char* get_serialized_base_path() = 0;
+		virtual const char* geSerializedBasePath() = 0;
 	};
 
 }

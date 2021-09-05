@@ -2,11 +2,10 @@
 
 namespace iw4oa 
 {
-	static class Utils {
+	namespace Utils
+	{
 
-	public:
-
-		class String {
+		static class String {
 
 		public:
 			static const char* VA(const char* fmt, ...);

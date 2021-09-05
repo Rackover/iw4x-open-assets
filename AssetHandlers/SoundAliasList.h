@@ -11,12 +11,12 @@ namespace iw4oa
 			virtual void* deserialize(
 				const char* assetName,
 				const std::string& buffer,
-				MemoryManager& memoryManager,
+				Utils::MemoryManager& memoryManager,
 				const std::function<Game::XAssetHeader (uint8_t type, const char* name)>& findAssetFunction
 			) override;
 
-			virtual const char* get_serialized_file_path(const char* assetName) override;
-			virtual const char* get_serialized_base_path() override;
+			virtual const char* getSerializedFilePath(const char* assetName) override;
+			virtual const char* geSerializedBasePath() override;
 		};
 
 	}

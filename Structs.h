@@ -406,6 +406,380 @@ namespace iw4oa {
 			unsigned int count;
 		};
 
+		////////////////////////////////////////////
+		// Models
+
+		struct DObjAnimMat
+		{
+			float quat[4];
+			float trans[3];
+			float transWeight;
+		};
+
+		struct __declspec(align(4)) PhysPreset
+		{
+			const char* name;
+			int type;
+			float mass;
+			float bounce;
+			float friction;
+			float bulletForceScale;
+			float explosiveForceScale;
+			const char* sndAliasPrefix;
+			float piecesSpreadFraction;
+			float piecesUpwardVelocity;
+			bool tempDefaultToCylinder;
+			bool perSurfaceSndAlias;
+		};
+
+		struct Bounds
+		{
+			float midPoint[3];
+			float halfSize[3];
+		};
+
+		struct cplane_s
+		{
+			float normal[3];
+			float dist;
+			char type;
+			char pad[3];
+		};
+
+		struct cbrushside_t
+		{
+			cplane_s* plane;
+			unsigned __int16 materialNum;
+			char firstAdjacentSideOffset;
+			char edgeCount;
+		};
+
+		struct cbrush_t
+		{
+			unsigned __int16 numsides;
+			unsigned __int16 glassPieceIndex;
+			cbrushside_t* sides;
+			char* baseAdjacentSide;
+			__int16 axialMaterialNum[2][3];
+			char firstAdjacentSideOffsets[2][3];
+			char edgeCount[2][3];
+		};
+
+		struct BrushWrapper
+		{
+			Bounds bounds;
+			cbrush_t brush;
+			int totalEdgeCount;
+			cplane_s* planes;
+		};
+
+		struct PhysGeomInfo
+		{
+			BrushWrapper* brushWrapper;
+			int type;
+			float orientation[3][3];
+			Bounds bounds;
+		};
+
+		struct PhysMass
+		{
+			float centerOfMass[3];
+			float momentsOfInertia[3];
+			float productsOfInertia[3];
+		};
+
+		struct PhysCollmap
+		{
+			const char* name;
+			unsigned int count;
+			PhysGeomInfo* geoms;
+			PhysMass mass;
+			Bounds bounds;
+		};
+
+		union XAnimIndices
+		{
+			char* _1;
+			unsigned __int16* _2;
+			void* data;
+		};
+
+		struct XAnimNotifyInfo
+		{
+			unsigned __int16 name;
+			float time;
+		};
+
+		union XAnimDynamicFrames
+		{
+			char(*_1)[3];
+			unsigned __int16(*_2)[3];
+		};
+
+		union XAnimDynamicIndices
+		{
+			char _1[1];
+			unsigned __int16 _2[1];
+		};
+
+		struct __declspec(align(4)) XAnimPartTransFrames
+		{
+			float mins[3];
+			float size[3];
+			XAnimDynamicFrames frames;
+			XAnimDynamicIndices indices;
+		};
+
+		union XAnimPartTransData
+		{
+			XAnimPartTransFrames frames;
+			float frame0[3];
+		};
+
+		struct XAnimPartTrans
+		{
+			unsigned __int16 size;
+			char smallTrans;
+			XAnimPartTransData u;
+		};
+
+		struct __declspec(align(4)) XAnimDeltaPartQuatDataFrames2
+		{
+			__int16(*frames)[2];
+			XAnimDynamicIndices indices;
+		};
+
+		union XAnimDeltaPartQuatData2
+		{
+			XAnimDeltaPartQuatDataFrames2 frames;
+			__int16 frame0[2];
+		};
+
+		struct XAnimDeltaPartQuat2
+		{
+			unsigned __int16 size;
+			XAnimDeltaPartQuatData2 u;
+		};
+
+		struct __declspec(align(4)) XAnimDeltaPartQuatDataFrames
+		{
+			__int16(*frames)[4];
+			XAnimDynamicIndices indices;
+		};
+
+		union XAnimDeltaPartQuatData
+		{
+			XAnimDeltaPartQuatDataFrames frames;
+			__int16 frame0[4];
+		};
+
+		struct XAnimDeltaPartQuat
+		{
+			unsigned __int16 size;
+			XAnimDeltaPartQuatData u;
+		};
+
+		struct XAnimDeltaPart
+		{
+			XAnimPartTrans* trans;
+			XAnimDeltaPartQuat2* quat2;
+			XAnimDeltaPartQuat* quat;
+		};
+
+		struct XAnimParts
+		{
+			const char* name;
+			unsigned __int16 dataByteCount;
+			unsigned __int16 dataShortCount;
+			unsigned __int16 dataIntCount;
+			unsigned __int16 randomDataByteCount;
+			unsigned __int16 randomDataIntCount;
+			unsigned __int16 numframes;
+			char flags;
+			char boneCount[10];
+			char notifyCount;
+			char assetType;
+			bool isDefault;
+			unsigned int randomDataShortCount;
+			unsigned int indexCount;
+			float framerate;
+			float frequency;
+			unsigned __int16* names;
+			char* dataByte;
+			__int16* dataShort;
+			int* dataInt;
+			__int16* randomDataShort;
+			char* randomDataByte;
+			int* randomDataInt;
+			XAnimIndices indices;
+			XAnimNotifyInfo* notify;
+			XAnimDeltaPart* deltaPart;
+		};
+
+		struct XSurfaceVertexInfo
+		{
+			__int16 vertCount[4];
+			unsigned __int16* vertsBlend;
+		};
+
+		union GfxColor
+		{
+			unsigned int packed;
+			char array[4];
+		};
+
+		union PackedTexCoords
+		{
+			unsigned int packed;
+		};
+
+		union PackedUnitVec
+		{
+			unsigned int packed;
+			char array[4];
+		};
+
+		struct GfxPackedVertex
+		{
+			float xyz[3];
+			float binormalSign;
+			GfxColor color;
+			PackedTexCoords texCoord;
+			PackedUnitVec normal;
+			PackedUnitVec tangent;
+		};
+
+		struct XSurfaceCollisionAabb
+		{
+			unsigned __int16 mins[3];
+			unsigned __int16 maxs[3];
+		};
+
+		struct XSurfaceCollisionNode
+		{
+			XSurfaceCollisionAabb aabb;
+			unsigned __int16 childBeginIndex;
+			unsigned __int16 childCount;
+		};
+
+		struct XSurfaceCollisionLeaf
+		{
+			unsigned __int16 triangleBeginIndex;
+		};
+
+		struct XSurfaceCollisionTree
+		{
+			float trans[3];
+			float scale[3];
+			unsigned int nodeCount;
+			XSurfaceCollisionNode* nodes;
+			unsigned int leafCount;
+			XSurfaceCollisionLeaf* leafs;
+		};
+
+		struct XRigidVertList
+		{
+			unsigned __int16 boneOffset;
+			unsigned __int16 vertCount;
+			unsigned __int16 triOffset;
+			unsigned __int16 triCount;
+			XSurfaceCollisionTree* collisionTree;
+		};
+
+		struct XSurface
+		{
+			char tileMode;
+			bool deformed;
+			unsigned __int16 vertCount;
+			unsigned __int16 triCount;
+			char zoneHandle;
+			unsigned __int16 baseTriIndex;
+			unsigned __int16 baseVertIndex;
+			unsigned __int16* triIndices;
+			XSurfaceVertexInfo vertInfo;
+			GfxPackedVertex* verts0;
+			unsigned int vertListCount;
+			XRigidVertList* vertList;
+			int partBits[6];
+		};
+
+		struct XModelSurfs
+		{
+			const char* name;
+			XSurface* surfs;
+			unsigned __int16 numsurfs;
+			int partBits[6];
+		};
+
+		struct XModelLodInfo
+		{
+			float dist;
+			unsigned __int16 numsurfs;
+			unsigned __int16 surfIndex;
+			XModelSurfs* modelSurfs;
+			int partBits[6];
+			XSurface* surfs;
+			char lod;
+			char smcBaseIndexPlusOne;
+			char smcSubIndexMask;
+			char smcBucket;
+		};
+
+		struct XModelCollTri_s
+		{
+			float plane[4];
+			float svec[4];
+			float tvec[4];
+		};
+
+		struct XModelCollSurf_s
+		{
+			XModelCollTri_s* collTris;
+			int numCollTris;
+			Bounds bounds;
+			int boneIdx;
+			int contents;
+			int surfFlags;
+		};
+
+		struct XBoneInfo
+		{
+			Bounds bounds;
+			float radiusSquared;
+		};
+
+		struct XModel
+		{
+			const char* name;
+			char numBones;
+			char numRootBones;
+			unsigned char numsurfs;
+			char lodRampType;
+			float scale;
+			unsigned int noScalePartBits[6];
+			unsigned __int16* boneNames;
+			char* parentList;
+			__int16* quats;
+			float* trans;
+			char* partClassification;
+			DObjAnimMat* baseMat;
+			Material** materialHandles;
+			XModelLodInfo lodInfo[4];
+			char maxLoadedLod;
+			char numLods;
+			char collLod;
+			char flags;
+			XModelCollSurf_s* collSurfs;
+			int numCollSurfs;
+			int contents;
+			XBoneInfo* boneInfo;
+			float radius;
+			Bounds bounds;
+			int memUsage;
+			bool bad;
+			PhysPreset* physPreset;
+			PhysCollmap* physCollmap;
+		};
 
 		// XAsset
 		enum XAssetType : uint8_t
@@ -466,6 +840,9 @@ namespace iw4oa {
 			LoadedSound* loadSnd;
 			GfxImage* image;
 			MaterialTechniqueSet* techniqueSet;
+
+			PhysPreset* physPreset;
+
 			void* data;
 		};
 	}

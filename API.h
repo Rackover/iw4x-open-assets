@@ -14,7 +14,7 @@ namespace iw4oa {
 					this->reason = iw4oa::Utils::String::VA(fmt, args);
 				}
 
-				std::string toString() const throw()
+				std::string to_string() const throw()
 				{
 					return reason;
 				}
@@ -23,7 +23,10 @@ namespace iw4oa {
 				const char* reason;
 			};
 
-		static IAssetHandler* get_handler_for_type(uint8_t uiType);
+		static IAssetHandler* getHandlerForType(uint8_t uiType);
+
+		static std::function<char* (unsigned short key)> getStringFromKeyFunc;
+		static std::function<unsigned short(char* string)> storeStringFunc;
 
 	private:
 

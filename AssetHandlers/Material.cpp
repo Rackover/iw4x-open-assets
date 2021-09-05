@@ -127,7 +127,7 @@ void iw4oa::AssetHandlers::Material::serialize(void* asset, const std::string& b
 	auto buffer = matData.dump(JSON_INDENT);
 
 
-	std::string outPath = Utils::String::VA("%s/%s", baseOutputPath.c_str(), get_serialized_file_path(material->info.name));
+	std::string outPath = Utils::String::VA("%s/%s", baseOutputPath.c_str(), getSerializedFilePath(material->info.name));
 	auto dir = outPath.substr(0, outPath.find_last_of("/\\"));
 	std::filesystem::create_directories(dir);
 	std::ofstream destination(outPath, std::ios::out | std::ios::binary);
@@ -278,12 +278,12 @@ void* iw4oa::AssetHandlers::Material::deserialize(
 
 }
 
-const char* iw4oa::AssetHandlers::Material::get_serialized_file_path(const char* assetName)
+const char* iw4oa::AssetHandlers::Material::getSerializedFilePath(const char* assetName)
 {
-	return Utils::String::VA("%s/%s.json", get_serialized_base_path(), assetName);
+	return Utils::String::VA("%s/%s.json", geSerializedBasePath(), assetName);
 }
 
-const char* iw4oa::AssetHandlers::Material::get_serialized_base_path()
+const char* iw4oa::AssetHandlers::Material::geSerializedBasePath()
 {
 	return "materials";
 }

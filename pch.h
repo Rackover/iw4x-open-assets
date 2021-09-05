@@ -23,11 +23,13 @@
 #include "Lib/nlohmann/json.hpp"
 
 #include "Utils.h"
+#include "Stream.h"
 #include "MemoryManager.h"
 #include "IAssetHandler.h"
 
 #include "API.h"
 #include "AssetHandlers/SoundAliasList.h"
 #include "AssetHandlers/Material.h"
+#include "AssetHandlers/Model.h"
 
 #endif //PCH_H

@@ -112,7 +112,7 @@ void iw4oa::AssetHandlers::SoundAliasList::serialize(void* asset, const std::str
 	auto buffer = aliasList.dump(JSON_INDENT);
 
 	auto outPath = Utils::String::VA("%s", baseOutputPath.c_str(), get_serialized_file_path(ents->aliasName));
-	std::filesystem::create_directories(Utils::String::VA("%s/%s", baseOutputPath.c_str(), get_serialized_base_path()));
+	std::filesystem::create_directories(Utils::String::VA("%s/%s", baseOutputPath.c_str(), geSerializedBasePath()));
 
 	std::ofstream destination(outPath, std::ios::binary);
 	destination.write(buffer.data(), buffer.length());
@@ -390,10 +390,10 @@ if (!CHECK(x, string))\
 
 	const char* iw4oa::AssetHandlers::SoundAliasList::get_serialized_file_path(const char* assetName)
 	{
-		return Utils::String::VA("%s/%s.json", get_serialized_base_path(), assetName);
+		return Utils::String::VA("%s/%s.json", geSerializedBasePath(), assetName);
 	}
 
-	const char* iw4oa::AssetHandlers::SoundAliasList::get_serialized_base_path()
+	const char* iw4oa::AssetHandlers::SoundAliasList::geSerializedBasePath()
 	{
 		return Utils::String::VA("sounds");
 	}
